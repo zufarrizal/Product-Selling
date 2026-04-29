@@ -69,6 +69,8 @@ Object.values(fields).forEach((el) => {
   el.addEventListener("input", recalculate);
   el.addEventListener("change", recalculate);
 });
+initAutoWidthSelect(fields.hookType);
+[fields.jumlahProduksi, fields.margin, fields.targetLabaNominal, fields.diskon, fields.ppn].forEach(initAutoWidthInput);
 
 function num(value) {
   const parsed = Number(value);
@@ -100,6 +102,52 @@ function bindAutoRecalc(container) {
   });
 }
 
+function adjustSelectWidth(select) {
+  if (!(select instanceof HTMLSelectElement)) return;
+  const text = select.options[select.selectedIndex]?.text || "";
+  const textWidth = measureTextWidth(select, text);
+  const widthInPx = Math.max(140, Math.ceil(textWidth + 48));
+  select.classList.add("auto-width");
+  select.style.width = `${widthInPx}px`;
+}
+
+function initAutoWidthSelect(select) {
+  if (!(select instanceof HTMLSelectElement)) return;
+  adjustSelectWidth(select);
+  select.addEventListener("change", () => adjustSelectWidth(select));
+}
+
+function adjustInputWidth(input) {
+  if (!(input instanceof HTMLInputElement)) return;
+  const source = input.value || input.placeholder || "";
+  const textWidth = measureTextWidth(input, source);
+  const widthInPx = Math.max(120, Math.ceil(textWidth + 28));
+  input.classList.add("auto-width");
+  input.style.width = `${widthInPx}px`;
+}
+
+function initAutoWidthInput(input) {
+  if (!(input instanceof HTMLInputElement)) return;
+  adjustInputWidth(input);
+  input.addEventListener("input", () => adjustInputWidth(input));
+  input.addEventListener("change", () => adjustInputWidth(input));
+}
+
+function initAutoWidthFields(container) {
+  if (!container) return;
+  container.querySelectorAll("select").forEach(initAutoWidthSelect);
+  container.querySelectorAll("input").forEach(initAutoWidthInput);
+}
+
+function measureTextWidth(el, text) {
+  const canvas = measureTextWidth.canvas || (measureTextWidth.canvas = document.createElement("canvas"));
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return String(text || "").length * 9;
+  const style = window.getComputedStyle(el);
+  ctx.font = style.font || `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+  return ctx.measureText(String(text || "")).width;
+}
+
 function addBahanRow(data = {}) {
   const tr = document.createElement("tr");
   tr.innerHTML = `
@@ -114,6 +162,7 @@ function addBahanRow(data = {}) {
   `;
 
   bindAutoRecalc(tr);
+  initAutoWidthFields(tr);
   tr.querySelector(".hapus").addEventListener("click", () => {
     tr.remove();
     if (!bahanRows.children.length) addBahanRow();
@@ -139,6 +188,7 @@ function addBiayaRow(data = {}) {
   `;
 
   bindAutoRecalc(tr);
+  initAutoWidthFields(tr);
   tr.querySelector(".hapus").addEventListener("click", () => {
     tr.remove();
     if (!biayaRows.children.length) addBiayaRow();
@@ -165,6 +215,7 @@ function refreshCategorySelects() {
     if (!categories.includes(current)) {
       select.value = categories[0];
     }
+    adjustSelectWidth(select);
   });
 }
 
@@ -266,6 +317,8 @@ function clearSavedData() {
   fields.diskon.value = 0;
   fields.ppn.value = 11;
   fields.hookType.value = "none";
+  adjustSelectWidth(fields.hookType);
+  [fields.jumlahProduksi, fields.margin, fields.targetLabaNominal, fields.diskon, fields.ppn].forEach(adjustInputWidth);
 
   bahanRows.innerHTML = "";
   biayaRows.innerHTML = "";
@@ -289,6 +342,8 @@ function loadFromLocalStorage() {
     fields.diskon.value = data.settings?.diskon ?? 0;
     fields.ppn.value = data.settings?.ppn ?? 11;
     fields.hookType.value = data.settings?.hookType ?? "none";
+    adjustSelectWidth(fields.hookType);
+    [fields.jumlahProduksi, fields.margin, fields.targetLabaNominal, fields.diskon, fields.ppn].forEach(adjustInputWidth);
     if (Array.isArray(data.settings?.categories) && data.settings.categories.length) {
       categories = data.settings.categories.map(normalizeCategoryName).filter(Boolean);
     }

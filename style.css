@@ -98,7 +98,21 @@ th, td {
 
 th { background: #0f1a2e; color: #cbd5e1; font-weight: 700; }
 tr:hover td { background: #0f1b31; }
-.subtotal { white-space: nowrap; font-weight: 700; color: #f8fafc; }
+.subtotal { white-space: nowrap; font-weight: 700; color: #f8fafc; font-size: 0.83rem; }
+
+select.auto-width {
+  width: auto;
+  min-width: 12ch;
+  max-width: 100%;
+  padding-right: 2.2rem;
+  background-position: right 0.7rem center;
+}
+
+input.auto-width {
+  width: auto;
+  min-width: 10ch;
+  max-width: 100%;
+}
 
 .row-actions {
   margin-top: 0.8rem;
@@ -155,7 +169,7 @@ tr:hover td { background: #0f1b31; }
 .category-totals {
   margin-top: 0.75rem;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0.65rem;
 }
 
@@ -302,6 +316,10 @@ button.secondary:hover { background: #475569; }
     font-size: 0.78rem;
   }
 
+  .subtotal {
+    font-size: 0.78rem;
+  }
+
   .row-actions {
     grid-template-columns: 1fr;
   }
@@ -336,7 +354,7 @@ button.secondary:hover { background: #475569; }
   }
 
   .category-totals {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .category-list {
@@ -368,5 +386,9 @@ button.secondary:hover { background: #475569; }
 
   table {
     min-width: 680px;
+  }
+
+  .category-totals {
+    grid-template-columns: 1fr;
   }
 }
