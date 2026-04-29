@@ -1,0 +1,146 @@
+﻿<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kalkulator Biaya Produk & Harga Jual</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>Kalkulator Biaya Produk</h1>
+    <p class="subtitle">Hitung biaya produk dari bahan baku sampai harga jual, realtime dan rinci.</p>
+
+    <section class="card">
+      <h2>1) Rincian Bahan Baku</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nama Bahan</th>
+              <th>Supplier</th>
+              <th>Qty</th>
+              <th>Satuan</th>
+              <th>Harga Satuan</th>
+              <th>Catatan</th>
+              <th>Subtotal</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="bahanRows"></tbody>
+        </table>
+      </div>
+      <div class="row-actions">
+        <button id="tambahBahanBtn" type="button">+ Tambah Bahan</button>
+        <div class="inline-total">Total bahan baku: <strong id="totalBahanBaku">Rp 0</strong></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2) Rincian Biaya Produksi Lainnya</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Kategori</th>
+              <th>Nama Biaya</th>
+              <th>Qty</th>
+              <th>Satuan</th>
+              <th>Harga Satuan</th>
+              <th>Subtotal</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="biayaRows"></tbody>
+        </table>
+      </div>
+      <div class="row-actions">
+        <button id="tambahBiayaBtn" type="button">+ Tambah Biaya</button>
+        <div class="inline-total">Total biaya lainnya: <strong id="totalBiayaLainnya">Rp 0</strong></div>
+      </div>
+      <div class="category-add-row">
+        <div class="category-add-input">
+          <label for="kategoriBaruInput">Tambah kategori baru</label>
+          <input type="text" id="kategoriBaruInput" placeholder="Contoh: Logistik" />
+        </div>
+        <button id="tambahKategoriBtn" type="button">+ Tambah Kategori</button>
+      </div>
+      <div class="category-list" id="categoryList"></div>
+      <div class="category-totals" id="categoryTotalsContainer"></div>
+    </section>
+
+    <section class="card">
+      <h2>3) Pengaturan Harga Jual</h2>
+      <div class="grid">
+        <label>Jumlah produksi (pcs)
+          <input type="number" id="jumlahProduksi" min="1" step="1" value="1" />
+        </label>
+        <label>Target margin (%)
+          <input type="number" id="margin" min="0" step="0.1" value="30" />
+        </label>
+        <label>Target laba nominal total (opsional)
+          <input type="number" id="targetLabaNominal" min="0" step="100" value="0" />
+        </label>
+        <label>Diskon promo (%)
+          <input type="number" id="diskon" min="0" max="100" step="0.1" value="0" />
+        </label>
+        <label>PPN (%)
+          <input type="number" id="ppn" min="0" max="100" step="0.1" value="11" />
+        </label>
+        <label>Tipe harga hook
+          <select id="hookType">
+            <option value="none">Tanpa hook</option>
+            <option value="900">Akhir 900</option>
+            <option value="950">Akhir 950</option>
+            <option value="990">Akhir 990</option>
+            <option value="999">Akhir 999</option>
+          </select>
+        </label>
+      </div>
+      <div class="row-actions">
+        <button id="exportPdfBtn" type="button">Ekspor PDF Lengkap</button>
+        <button id="clearSavedBtn" type="button" class="secondary">Hapus Data Tersimpan</button>
+        <span class="autosave" id="autosaveStatus">Simpan otomatis aktif</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>4) Hasil Perhitungan</h2>
+      <div class="result-grid">
+        <div><span>Total biaya produksi</span><strong id="totalBiaya">Rp 0</strong></div>
+        <div><span>Biaya per pcs</span><strong id="biayaPerPcs">Rp 0</strong></div>
+        <div><span>Harga dasar sebelum diskon/pajak</span><strong id="hargaDasar">Rp 0</strong></div>
+        <div><span>Harga setelah diskon</span><strong id="hargaSetelahDiskon">Rp 0</strong></div>
+        <div><span>Harga final setelah pajak</span><strong id="hargaFinal">Rp 0</strong></div>
+        <div><span>Harga hook (rekomendasi per pcs)</span><strong id="hargaHook">Rp 0</strong></div>
+        <div><span>Laba total estimasi</span><strong id="laba">Rp 0</strong></div>
+        <div><span>Laba per pcs estimasi</span><strong id="labaPerPcs">Rp 0</strong></div>
+      </div>
+      <p class="note" id="catatan">Semua hasil dihitung otomatis saat data berubah.</p>
+      <ul class="warnings" id="warningList"></ul>
+    </section>
+
+    <section class="card">
+      <h2>5) Strategi Lokasi Jual (10 Level)</h2>
+      <p class="subtitle">Setiap level lokasi punya pengali harga berbeda. Harga rekomendasi dihitung dari harga hook per pcs.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Level</th>
+              <th>Lokasi / Channel</th>
+              <th>Pengali Harga</th>
+              <th>Harga Rekomendasi / pcs</th>
+              <th>Estimasi Laba / pcs</th>
+              <th>Estimasi Laba Total</th>
+            </tr>
+          </thead>
+          <tbody id="levelRows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
